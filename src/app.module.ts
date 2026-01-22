@@ -9,11 +9,11 @@ import { CommonController } from './common.controller';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mariadb',
-      host: 'localhost',
+      host: '192.168.1.35',
       port: 3306,
-      username: '',
-      password: '',
-      database: '',
+      username: 'root',
+      password: 'example',
+      database: 'personal_financer',
       synchronize: false,
       autoLoadEntities: true,
     }),

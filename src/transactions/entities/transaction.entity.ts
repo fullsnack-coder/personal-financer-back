@@ -1,4 +1,4 @@
-import { Fund } from 'src/funds/entities/fund.entity';
+import { Fund } from '../../funds/entities/fund.entity';
 import {
   Column,
   Entity,
@@ -19,6 +19,9 @@ export class Transaction {
   @JoinColumn({ name: 'fund_id' })
   fund: Fund;
 
-  @Column('money')
+  @Column('decimal', { precision: 15, scale: 2 })
   amount: number;
+
+  @Column({ type: 'nvarchar', nullable: true })
+  voucherImageUrl?: string;
 }

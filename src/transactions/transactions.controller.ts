@@ -6,35 +6,38 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @UploadedFile() transactionFile: Express.Multer.File,
+    @Body() createTransactionDto: Omit<CreateTransactionDto, 'transactionFile'>,
+  ) {
+    return this.transactionsService.create({
+      transactionFile,
+      ...createTransactionDto,
+    });
   }
 
   @Get()
   async findAll() {
-    await new Promise((resolve, reject) => setTimeout(resolve, 3500)); // Simulate delay
-    return {
-      ok: true,
-      data: this.transactionsService.findAll(),
-    };
+    return this.transactionsService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return {
-      ok: true,
-      data: this.transactionsService.findOne(+id),
-    };
+    return this.transactionsService.findOne(id);
   }
 
   @Patch(':id')
@@ -42,11 +45,11 @@ export class TransactionsController {
     @Param('id') id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
   ) {
-    return this.transactionsService.update(+id, updateTransactionDto);
+    return this.transactionsService.update(id, updateTransactionDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
+    return this.transactionsService.remove(id);
   }
 }

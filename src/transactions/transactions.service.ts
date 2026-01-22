@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FundsService } from 'src/funds/funds.service';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
+import { promises } from 'node:fs';
 
 @Injectable()
 export class TransactionsService {
@@ -14,15 +15,27 @@ export class TransactionsService {
     private fundsService: FundsService,
   ) {}
 
-  async create({ amount, fundId }: CreateTransactionDto) {
+  async create({ amount, fundId, transactionFile }: CreateTransactionDto) {
     const transactionFund = await this.fundsService.findOne(fundId);
 
     if (!transactionFund) throw new NotFoundException('Fund not found');
 
-    const createdTransaction = this.transactionRepository.create({
+    const transactionPayload: Partial<Transaction> = {
       fund: transactionFund,
       amount,
-    });
+    };
+
+    if (transactionFile) {
+      const { mimetype } = transactionFile;
+      const uploadPath = `uploads/transactions/${Date.now()}.${mimetype.split('/')[1]}`;
+
+      await promises.writeFile(uploadPath, transactionFile.buffer);
+
+      transactionPayload.voucherImageUrl = uploadPath;
+    }
+
+    const createdTransaction =
+      this.transactionRepository.create(transactionPayload);
 
     await this.transactionRepository.save(createdTransaction);
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, Param } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 
 @Controller('categories')
@@ -7,15 +7,11 @@ export class CategoriesController {
 
   @Get()
   findAll() {
-    Logger.log(this.categoriesService.findAll());
-    return {
-      ok: true,
-      data: this.categoriesService.findAll(),
-    };
+    return this.categoriesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.categoriesService.findOne(id);
   }
 }

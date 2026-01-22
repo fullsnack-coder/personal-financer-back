@@ -1,5 +1,5 @@
-import { Category } from 'src/categories/entities/category.entity';
-import { Transaction } from 'src/transactions/entities/transaction.entity';
+import { Category } from '../../categories/entities/category.entity';
+import { Transaction } from '../../transactions/entities/transaction.entity';
 import {
   Column,
   Entity,
@@ -14,16 +14,16 @@ export class Fund {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'string' })
+  @Column({ type: 'varchar' })
   title: string;
 
-  @Column({ type: 'string' })
+  @Column({ type: 'nvarchar' })
   description: string;
 
-  @Column('money')
+  @Column('decimal', { precision: 15, scale: 2 })
   balance: number;
 
-  @ManyToOne(() => Category, (category) => category.funds, {
+  @ManyToOne(() => Category, (category): Array<Fund> => category.funds, {
     nullable: false,
     onDelete: 'CASCADE',
   })
