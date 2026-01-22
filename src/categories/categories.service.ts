@@ -1,25 +1,20 @@
 import { Injectable } from '@nestjs/common';
-
-export const categories = [
-  {
-    id: 1,
-    name: 'Sample Category',
-    coverUrl: 'https://example.com/category-cover.jpg',
-  },
-  {
-    id: 2,
-    name: 'Another Category',
-    coverUrl: 'https://example.com/another-category-cover.jpg',
-  },
-];
+import { InjectRepository } from '@nestjs/typeorm';
+import { Category } from './entities/category.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
+  constructor(
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+  ) {}
+
   findAll() {
-    return categories;
+    return this.categoryRepository.find();
   }
 
   findOne(id: number) {
-    return categories.find((category) => category.id === id);
+    return this.categoryRepository.findOneBy({ id });
   }
 }

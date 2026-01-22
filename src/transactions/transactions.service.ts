@@ -1,57 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-
-const fund = {
-  id: 1,
-  name: 'Emergency Fund',
-  balance: 1000,
-  cover: { url: 'https://example.com/cover.jpg' },
-  category: {
-    id: 1,
-    name: 'Sample Category',
-    coverUrl: 'https://example.com/category-cover.jpg',
-  },
-};
-
-const transactions = [
-  {
-    id: 1,
-    amount: 100,
-    description: 'Sample transaction',
-    date: new Date().toISOString(),
-    fund,
-  },
-  {
-    id: 2,
-    amount: 250,
-    description: 'Another transaction',
-    date: new Date().toISOString(),
-    fund,
-  },
-];
+import { InjectRepository } from '@nestjs/typeorm';
+import { FundsService } from 'src/funds/funds.service';
+import { Repository } from 'typeorm';
+import { Transaction } from './entities/transaction.entity';
 
 @Injectable()
 export class TransactionsService {
-  create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
+  constructor(
+    @InjectRepository(Transaction)
+    private transactionRepository: Repository<Transaction>,
+    private fundsService: FundsService,
+  ) {}
+
+  async create({ amount, fundId }: CreateTransactionDto) {
+    const transactionFund = await this.fundsService.findOne(fundId);
+
+    if (!transactionFund) throw new NotFoundException('Fund not found');
+
+    const createdTransaction = this.transactionRepository.create({
+      fund: transactionFund,
+      amount,
+    });
+
+    await this.transactionRepository.save(createdTransaction);
+
+    return createdTransaction;
   }
 
   findAll() {
-    return transactions;
-    // throw new Error('Method not implemented.');
+    return this.transactionRepository.find();
   }
 
-  findOne(id: number) {
-    console.log({ id });
-    return transactions.find((transaction) => transaction.id === id);
+  async findOne(id: string) {
+    await this.transactionRepository.findOneBy({ id });
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: string, { amount, fundId }: UpdateTransactionDto) {
+    const updatePayload: Partial<Transaction> = { amount };
+
+    if (fundId) {
+      const transactionFund = await this.fundsService.findOne(fundId);
+      if (!transactionFund) throw new NotFoundException('Fund not found');
+
+      updatePayload.fund = transactionFund;
+    }
+
+    await this.transactionRepository.update({ id }, updatePayload);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  remove(id: string) {
+    return this.transactionRepository.softDelete({ id });
   }
 }

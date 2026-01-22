@@ -1,92 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CategoriesService } from 'src/categories/categories.service';
+import { Repository } from 'typeorm';
 import { CreateFundDto } from './dto/create-fund.dto';
 import { UpdateFundDto } from './dto/update-fund.dto';
-import { categories } from 'src/categories/categories.service';
-
-let funds = [
-  {
-    id: 1,
-    name: 'Emergency Fund',
-    balance: '$12,345.67',
-    cover: {
-      url: 'https://images.pexels.com/photos/259165/pexels-photo-259165.jpeg',
-    },
-    category: {
-      id: 1,
-      name: 'Savings',
-      coverUrl:
-        'https://images.pexels.com/photos/259165/pexels-photo-259165.jpeg',
-    },
-  },
-  {
-    id: 2,
-    name: 'Vacation Fund',
-    balance: '$4,500.00',
-    cover: {
-      url: 'https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg',
-    },
-    category: {
-      id: 2,
-      name: 'Leisure',
-      coverUrl:
-        'https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg',
-    },
-  },
-];
+import { Fund } from './entities/fund.entity';
 
 @Injectable()
 export class FundsService {
-  create(createFundDto: CreateFundDto) {
-    const category = categories.find(
-      (cat) => cat.id === createFundDto.categoryId,
-    );
+  constructor(
+    @InjectRepository(Fund) private fundRepository: Repository<Fund>,
+    private categoriesService: CategoriesService,
+  ) {}
+  async create({ categoryId, initialBalance, name }: CreateFundDto) {
+    const fundCategory = await this.categoriesService.findOne(categoryId);
 
-    if (!category) {
-      throw new Error('Category not found');
+    if (!fundCategory) {
+      throw new NotFoundException('Category not found');
     }
 
-    const newFund = {
-      id: funds.length + 1,
-      name: createFundDto.name,
-      balance: createFundDto.initialBalance.toString(),
-      cover: { url: category.coverUrl },
-      category: {
-        id: category.id,
-        name: category.name,
-        coverUrl: category.coverUrl,
-      },
-    };
+    const createdFund = this.fundRepository.create({
+      title: name,
+      balance: initialBalance,
+      category: fundCategory,
+    });
 
-    funds.push(newFund);
-    return newFund;
+    await this.fundRepository.save(createdFund);
   }
 
   findAll() {
-    return funds;
+    return this.fundRepository.find();
   }
 
-  findOne(id: number) {
-    return funds.find((fund) => fund.id === id);
+  findOne(id: string) {
+    return this.fundRepository.findOneBy({ id });
   }
 
-  update(id: number, updateFundDto: UpdateFundDto) {
-    const fundIndex = funds.findIndex((fund) => fund.id === id);
-    if (fundIndex === -1) {
-      throw new Error('Fund not found');
+  async update(
+    id: string,
+    { categoryId, initialBalance, name }: UpdateFundDto,
+  ) {
+    const updateBody: Partial<Fund> = {
+      balance: initialBalance,
+      title: name,
+    };
+
+    if (categoryId) {
+      const fundCategory = await this.categoriesService.findOne(categoryId);
+
+      if (!fundCategory) throw new NotFoundException('Category not found');
+
+      updateBody.category = fundCategory;
     }
 
-    const updatedFund = { ...funds[fundIndex], ...updateFundDto };
-    funds[fundIndex] = updatedFund;
+    const updatedFund = await this.fundRepository.update({ id }, updateBody);
+
     return updatedFund;
   }
 
-  remove(id: number) {
-    const newFunds = funds.filter((fund) => fund.id !== id);
-    if (newFunds.length === funds.length) {
-      throw new Error('Fund not found');
-    }
-
-    funds = newFunds;
-    return { message: 'Fund removed successfully' };
+  async remove(id: string) {
+    await this.fundRepository.softDelete({ id });
   }
 }
