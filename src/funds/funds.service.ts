@@ -29,11 +29,21 @@ export class FundsService {
   }
 
   findAll() {
-    return this.fundRepository.find();
+    return this.fundRepository.find({
+      relations: { category: true },
+      select: {
+        category: {
+          id: true,
+          title: true,
+        },
+      },
+    });
   }
 
   findOne(id: string) {
-    return this.fundRepository.findOneBy({ id });
+    return this.fundRepository.findOne({
+      where: { id },
+    });
   }
 
   async update(

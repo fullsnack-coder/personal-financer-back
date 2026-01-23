@@ -27,10 +27,7 @@ export class FundsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return {
-      ok: true,
-      data: this.fundsService.findOne(id),
-    };
+    return this.fundsService.findOne(id);
   }
 
   @Patch(':id')
