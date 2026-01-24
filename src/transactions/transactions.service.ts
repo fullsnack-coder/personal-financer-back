@@ -43,11 +43,16 @@ export class TransactionsService {
   }
 
   findAll() {
-    return this.transactionRepository.find();
+    return this.transactionRepository.find({
+      relations: ['fund', 'fund.user'],
+    });
   }
 
-  async findOne(id: string) {
-    await this.transactionRepository.findOneBy({ id });
+  findOne(id: string) {
+    return this.transactionRepository.findOne({
+      where: { id },
+      relations: ['fund', 'fund.user'],
+    });
   }
 
   async update(id: string, { amount, fundId }: UpdateTransactionDto) {

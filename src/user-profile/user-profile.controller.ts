@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -23,7 +24,18 @@ export class UserProfileController {
   }
 
   @Put(':userId')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException('Only image files are allowed'), false);
+        }
+      },
+    }),
+  )
   updateProfile(
     @Param('userId') userId: string,
     @Body() profileData: UpdateProfileDto,

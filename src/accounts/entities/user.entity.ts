@@ -1,10 +1,17 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
 import UserProfile from '../../user-profile/entities/user-profile.entity';
+import { Fund } from '../../funds/entities/fund.entity';
 
 @Entity()
 export class User extends TrackeableEntity {
-  @Column({ type: 'uuid', primary: true })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', unique: true })
@@ -21,4 +28,7 @@ export class User extends TrackeableEntity {
     nullable: true,
   })
   profile?: UserProfile;
+
+  @OneToMany(() => Fund, (fund) => fund.user)
+  funds: Array<Fund>;
 }

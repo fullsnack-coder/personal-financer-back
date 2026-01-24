@@ -1,27 +1,38 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
+import { AuthPayload } from '@/types/auth';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const sessionToken = (request.cookies as Record<string, string>)[
-      'session_token'
-    ];
+    const request: Request = context.switchToHttp().getRequest<Request>();
+    const cookies = (request.cookies as Record<string, string>) || {};
+    const sessionToken = cookies['session_token'];
 
     if (!sessionToken) {
-      return false;
+      throw new UnauthorizedException('No session token provided');
     }
 
-    const isValid = jwt.verify(
-      sessionToken,
-      process.env.JWT_SECRET || 'default_secret',
-    );
+    try {
+      const sessionPayload = jwt.verify(
+        sessionToken,
+        process.env.JWT_SECRET || 'default_secret',
+      );
 
-    return !!isValid;
+      request.user = sessionPayload as AuthPayload;
+
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid session token');
+    }
   }
 }

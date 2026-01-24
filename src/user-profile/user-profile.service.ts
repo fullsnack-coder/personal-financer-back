@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import UserProfile from './entities/user-profile.entity';
-import { Repository } from 'typeorm';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { promises } from 'fs';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { AuthService } from '../auth/auth.service';
+import { Repository } from 'typeorm';
+import UserProfile from './entities/user-profile.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 interface UpdateProfileOptions {
   profileData: UpdateProfileDto;
@@ -17,8 +15,7 @@ interface UpdateProfileOptions {
 export class UserProfileService {
   constructor(
     @InjectRepository(UserProfile)
-    private userProfileRepository: Repository<UserProfile>,
-    private authService: AuthService,
+    private readonly userProfileRepository: Repository<UserProfile>,
   ) {}
 
   async getProfile(userId: string) {
@@ -27,21 +24,6 @@ export class UserProfileService {
     });
 
     return userProfile;
-  }
-
-  async registerProfile(userId: string, createProfileDto: CreateProfileDto) {
-    const profileUser = await this.authService.findUserById(userId);
-
-    if (!profileUser) {
-      throw new Error('User not found');
-    }
-
-    const newProfile = this.userProfileRepository.create({
-      user: profileUser,
-      ...createProfileDto,
-    });
-
-    return this.userProfileRepository.save(newProfile);
   }
 
   async updateProfile({ userId, profileData, avatar }: UpdateProfileOptions) {
@@ -53,14 +35,11 @@ export class UserProfileService {
 
       await promises.writeFile(uploadPath, avatar.buffer);
 
-      updatePayload.avatarUrl = uploadPath;
+      updatePayload.avatarUrl = uploadPath.replace('uploads/', '/static/');
     }
 
-    const updatedProfile = await this.userProfileRepository.update(
-      { id: userId },
-      updatePayload,
-    );
+    await this.userProfileRepository.update({ id: userId }, updatePayload);
 
-    return updatedProfile;
+    return { message: 'Profile updated successfully' };
   }
 }

@@ -1,3 +1,4 @@
+import { User } from '../../accounts/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { Transaction } from '../../transactions/entities/transaction.entity';
 import {
@@ -32,4 +33,11 @@ export class Fund {
 
   @OneToMany(() => Transaction, (transaction) => transaction.fund)
   transactions: Array<Transaction>;
+
+  @ManyToOne(() => User, (user) => user.funds, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }

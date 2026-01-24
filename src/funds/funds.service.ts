@@ -43,6 +43,17 @@ export class FundsService {
   findOne(id: string) {
     return this.fundRepository.findOne({
       where: { id },
+      relations: { user: true, category: true },
+      select: {
+        user: {
+          id: true,
+          username: true,
+        },
+        category: {
+          id: true,
+          title: true,
+        },
+      },
     });
   }
 

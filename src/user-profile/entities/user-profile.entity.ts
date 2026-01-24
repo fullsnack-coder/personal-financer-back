@@ -1,10 +1,16 @@
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../accounts/entities/user.entity';
 import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 class UserProfile extends TrackeableEntity {
-  @PrimaryColumn({ type: 'uuid', primary: true })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false })

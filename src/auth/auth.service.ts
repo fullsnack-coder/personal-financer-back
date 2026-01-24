@@ -1,32 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
 import jwt from 'jsonwebtoken';
-import { User } from './entities/user.entity';
-import { UserProfileService } from '@/user-profile/user-profile.service';
+import { DataSource } from 'typeorm';
+import { AccountsService } from '../accounts/accounts.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { LoginAccountDto } from './dto/login-account.dto';
+import { User } from '@/accounts/entities/user.entity';
+import UserProfile from '@/user-profile/entities/user-profile.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
-    private readonly userProfileService: UserProfileService,
+    private readonly accountsService: AccountsService,
+    private readonly dataSource: DataSource,
   ) {}
-
-  private async findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.findOneBy({ username });
-  }
-
-  findUserById(userId: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { id: userId },
-      select: {
-        passwordHash: false,
-      },
-    });
-  }
 
   async register({
     username,
@@ -41,27 +28,40 @@ export class AuthService {
       throw new BadRequestException('Passwords do not match');
     }
 
-    const existingUser = await this.findByUsername(username);
+    const existingUser = await this.accountsService.findByUsername(username);
     if (existingUser) {
-      throw new BadRequestException('Username already taken');
+      throw new BadRequestException('Invalid credentials');
     }
 
-    const createUserPayload = this.userRepository.create({
-      username,
-      passwordHash,
-      email,
-    });
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        const user = manager.create(User, {
+          username,
+          email,
+          passwordHash,
+        });
 
-    const registeredUser = await this.userRepository.save(createUserPayload);
+        await manager.save(user);
 
-    await this.userProfileService.registerProfile(
-      registeredUser.id,
-      profileData,
-    );
+        const userProfile = manager.create(UserProfile, {
+          ...profileData,
+          user: user,
+        });
+
+        await manager.save(userProfile);
+
+        return user;
+      });
+    } catch (error) {
+      Logger.error('Registration error:', error);
+      throw new BadRequestException('Registration failed');
+    }
+
+    return { message: 'Registration successful' };
   }
 
   async login({ username, password }: LoginAccountDto) {
-    const user = await this.findByUsername(username);
+    const user = await this.accountsService.findByUsername(username);
 
     if (!user) {
       throw new BadRequestException('Invalid username or password');
@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default_secret',
       { expiresIn: '1h' },
     );

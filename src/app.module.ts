@@ -4,6 +4,11 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { FundsModule } from './funds/funds.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CommonController } from './common.controller';
+import { UserProfileModule } from './user-profile/user-profile.module';
+import { AuthModule } from './auth/auth.module';
+import { AccountsModule } from './accounts/accounts.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -17,9 +22,16 @@ import { CommonController } from './common.controller';
       synchronize: false,
       autoLoadEntities: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/static',
+    }),
     TransactionsModule,
     FundsModule,
     CategoriesModule,
+    UserProfileModule,
+    AuthModule,
+    AccountsModule,
   ],
   controllers: [CommonController],
   providers: [],
