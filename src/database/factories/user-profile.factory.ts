@@ -1,4 +1,4 @@
-import UserProfile from '@/user-profile/entities/user-profile.entity';
+import UserProfile from '../../user-profile/entities/user-profile.entity';
 import { setSeederFactory } from 'typeorm-extension';
 
 export default setSeederFactory(UserProfile, (faker) => {

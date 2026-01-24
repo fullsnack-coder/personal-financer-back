@@ -15,6 +15,7 @@ export default class UserSeeder implements Seeder {
       .create({
         username: 'john_doe',
         passwordHash: bcrypt.hashSync('123123123', 10),
+        email: 'john_doe@example.com',
       })
       .save();
 
