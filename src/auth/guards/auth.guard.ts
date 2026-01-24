@@ -16,7 +16,11 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest<Request>();
     const cookies = (request.cookies as Record<string, string>) || {};
-    const sessionToken = cookies['session_token'];
+    const headers = request.headers || {};
+
+    const sessionToken =
+      cookies['session_token'] ||
+      headers['authorization']?.replace('Bearer ', '');
 
     if (!sessionToken) {
       throw new UnauthorizedException('No session token provided');

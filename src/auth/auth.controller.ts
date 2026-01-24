@@ -26,6 +26,9 @@ export class AuthController {
       sameSite: 'lax',
     });
 
-    return res.send({ message: 'Login successful' });
+    return res.send({
+      message: 'Login successful',
+      session: loginResult.sessionToken,
+    });
   }
 }
