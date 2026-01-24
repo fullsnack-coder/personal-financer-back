@@ -15,8 +15,11 @@ export class TransactionsService {
     private fundsService: FundsService,
   ) {}
 
-  async create({ amount, fundId, transactionFile }: CreateTransactionDto) {
-    const transactionFund = await this.fundsService.findOne(fundId);
+  async create(
+    { amount, fundId, transactionFile }: CreateTransactionDto,
+    userId: string,
+  ) {
+    const transactionFund = await this.fundsService.findOne(fundId, userId);
 
     if (!transactionFund) throw new NotFoundException('Fund not found');
 
@@ -42,9 +45,10 @@ export class TransactionsService {
     return createdTransaction;
   }
 
-  findAll() {
+  findAll(userId: string) {
     return this.transactionRepository.find({
       relations: ['fund', 'fund.user'],
+      where: { fund: { user: { id: userId } } },
     });
   }
 
@@ -55,11 +59,15 @@ export class TransactionsService {
     });
   }
 
-  async update(id: string, { amount, fundId }: UpdateTransactionDto) {
+  async update(
+    id: string,
+    { amount, fundId }: UpdateTransactionDto,
+    userId: string,
+  ) {
     const updatePayload: Partial<Transaction> = { amount };
 
     if (fundId) {
-      const transactionFund = await this.fundsService.findOne(fundId);
+      const transactionFund = await this.fundsService.findOne(fundId, userId);
       if (!transactionFund) throw new NotFoundException('Fund not found');
 
       updatePayload.fund = transactionFund;

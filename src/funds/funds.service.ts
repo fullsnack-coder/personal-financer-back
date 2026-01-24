@@ -28,21 +28,26 @@ export class FundsService {
     await this.fundRepository.save(createdFund);
   }
 
-  findAll() {
+  findAll(userId: string) {
     return this.fundRepository.find({
-      relations: { category: true },
+      where: { user: { id: userId } },
+      relations: { category: true, user: true },
       select: {
         category: {
           id: true,
           title: true,
         },
+        user: {
+          id: true,
+          username: true,
+        },
       },
     });
   }
 
-  findOne(id: string) {
+  findOne(id: string, userId: string) {
     return this.fundRepository.findOne({
-      where: { id },
+      where: { id, user: { id: userId } },
       relations: { user: true, category: true },
       select: {
         user: {
@@ -59,6 +64,7 @@ export class FundsService {
 
   async update(
     id: string,
+    userId: string,
     { categoryId, initialBalance, name }: UpdateFundDto,
   ) {
     const updateBody: Partial<Fund> = {
@@ -74,12 +80,15 @@ export class FundsService {
       updateBody.category = fundCategory;
     }
 
-    const updatedFund = await this.fundRepository.update({ id }, updateBody);
+    const updatedFund = await this.fundRepository.update(
+      { id, user: { id: userId } },
+      updateBody,
+    );
 
     return updatedFund;
   }
 
-  async remove(id: string) {
-    await this.fundRepository.softDelete({ id });
+  async remove(id: string, userId: string) {
+    await this.fundRepository.softDelete({ id, user: { id: userId } });
   }
 }
