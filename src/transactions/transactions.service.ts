@@ -47,7 +47,7 @@ export class TransactionsService {
 
   findAll(userId: string) {
     return this.transactionRepository.find({
-      relations: ['fund', 'fund.user'],
+      relations: ['fund', 'fund.user', 'fund.category'],
       where: { fund: { user: { id: userId } } },
     });
   }
@@ -55,7 +55,7 @@ export class TransactionsService {
   findOne(id: string) {
     return this.transactionRepository.findOne({
       where: { id },
-      relations: ['fund', 'fund.user'],
+      relations: ['fund', 'fund.user', 'fund.category'],
     });
   }
 
