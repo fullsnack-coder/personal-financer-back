@@ -25,3 +25,6 @@ export class Transaction {
   @Column({ type: 'nvarchar', nullable: true })
   voucherImageUrl?: string;
 }
+
+// TODO: Add date of transaction field
+// TODO: Add description of transaction field

@@ -9,4 +9,5 @@ export class CreateFundDto {
 
   @IsNumber()
   categoryId: number;
+  // TODO: add field to store currency type and description
 }

@@ -23,14 +23,18 @@ export class FundsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createFundDto: CreateFundDto) {
-    return this.fundsService.create(createFundDto);
+  create(@Body() createFundDto: CreateFundDto, @Request() req: ExpressRequest) {
+    return this.fundsService.create(
+      createFundDto,
+      (req.user as AuthPayload).id,
+    );
   }
 
   @Get()
   @UseGuards(AuthGuard)
   async findAll(@Request() req: ExpressRequest) {
     return this.fundsService.findAll((req.user as AuthPayload).id);
+    // TODO: return { data: funds, total: number, page: number, pageSize: number, totalPages: number, and ok: boolean }
   }
 
   @Get(':id')

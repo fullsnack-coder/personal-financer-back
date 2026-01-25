@@ -18,11 +18,11 @@ export class Fund {
   @Column({ type: 'varchar' })
   title: string;
 
-  @Column({ type: 'nvarchar' })
-  description: string;
-
   @Column('decimal', { precision: 15, scale: 2 })
   balance: number;
+
+  @Column({ type: 'nvarchar', nullable: true })
+  description?: string;
 
   @ManyToOne(() => Category, (category): Array<Fund> => category.funds, {
     nullable: false,
