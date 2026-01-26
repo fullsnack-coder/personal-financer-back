@@ -14,7 +14,7 @@ export default class UserSeeder implements Seeder {
     await userRepository
       .create({
         username: 'john_doe',
-        passwordHash: bcrypt.hashSync('123123123', 10),
+        passwordHash: bcrypt.hashSync('P4ssword@123', 10),
         email: 'john_doe@example.com',
       })
       .save();

@@ -1,0 +1,28 @@
+import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
+import { map, Observable } from 'rxjs';
+import type { APIResponse } from '../types/api-response.interceptor';
+
+export class ApiResponseInterceptor<T>
+  implements NestInterceptor<T, APIResponse<T>>
+{
+  intercept(
+    _: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<APIResponse<T>> | Promise<Observable<APIResponse<T>>> {
+    return next.handle().pipe(
+      map((data) => {
+        const result = { ok: true } as APIResponse<T>;
+
+        result.data = data;
+
+        if ('pagination' in data) {
+          const { pagination, data: paginatedData } = data;
+          result.data = paginatedData as T;
+          result.meta = pagination;
+        }
+
+        return result;
+      }),
+    );
+  }
+}

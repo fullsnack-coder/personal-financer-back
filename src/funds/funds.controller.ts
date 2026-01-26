@@ -3,19 +3,21 @@ import {
   Get,
   Post,
   Body,
+  Query,
   Patch,
   Param,
   Delete,
   UseGuards,
-  Request,
+  ValidationPipe,
 } from '@nestjs/common';
-import type { Request as ExpressRequest } from 'express';
 import { FundsService } from './funds.service';
 import { CreateFundDto } from './dto/create-fund.dto';
 import { UpdateFundDto } from './dto/update-fund.dto';
 import { FundOwnerGuard } from './guards/fund-owner.guard';
 import { AuthGuard } from '@/auth/guards/auth.guard';
-import { AuthPayload } from '@/types/auth';
+import { CurrentSession } from '@/auth/decorators/current-session.decorator';
+import { PaginationDto } from '@/common/dto/pagination.dto';
+import type { SessionPayload } from '@/types/auth';
 
 @Controller('funds')
 export class FundsController {
@@ -23,24 +25,28 @@ export class FundsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createFundDto: CreateFundDto, @Request() req: ExpressRequest) {
-    return this.fundsService.create(
-      createFundDto,
-      (req.user as AuthPayload).id,
-    );
+  create(
+    @Body() createFundDto: CreateFundDto,
+    @CurrentSession() session: SessionPayload,
+  ) {
+    return this.fundsService.create(createFundDto, session.id);
   }
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll(@Request() req: ExpressRequest) {
-    return this.fundsService.findAll((req.user as AuthPayload).id);
-    // TODO: return { data: funds, total: number, page: number, pageSize: number, totalPages: number, and ok: boolean }
+  async findAll(
+    @CurrentSession() session: SessionPayload,
+    @Query(new ValidationPipe({ transform: true }))
+    queryParams: PaginationDto,
+  ) {
+    const { page, size } = queryParams;
+    return this.fundsService.findAll(session.id, { page, size });
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, FundOwnerGuard)
-  findOne(@Param('id') id: string, @Request() req: ExpressRequest) {
-    return this.fundsService.findOne(id, (req.user as AuthPayload).id);
+  findOne(@Param('id') id: string, @CurrentSession() session: SessionPayload) {
+    return this.fundsService.findOne(id, session.id);
   }
 
   @Patch(':id')
@@ -48,18 +54,14 @@ export class FundsController {
   update(
     @Param('id') id: string,
     @Body() updateFundDto: UpdateFundDto,
-    @Request() req: ExpressRequest,
+    @CurrentSession() session: SessionPayload,
   ) {
-    return this.fundsService.update(
-      id,
-      (req.user as AuthPayload).id,
-      updateFundDto,
-    );
+    return this.fundsService.update(id, session.id, updateFundDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, FundOwnerGuard)
-  remove(@Param('id') id: string, @Request() req: ExpressRequest) {
-    return this.fundsService.remove(id, (req.user as AuthPayload).id);
+  remove(@Param('id') id: string, @CurrentSession() session: SessionPayload) {
+    return this.fundsService.remove(id, session.id);
   }
 }

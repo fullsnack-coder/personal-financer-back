@@ -7,7 +7,7 @@ import {
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
-import { AuthPayload } from '@/types/auth';
+import type { SessionPayload } from '@/types/auth';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,7 +32,7 @@ export class AuthGuard implements CanActivate {
         process.env.JWT_SECRET || 'default_secret',
       );
 
-      request.user = sessionPayload as AuthPayload;
+      request.user = sessionPayload as SessionPayload;
 
       return true;
     } catch {

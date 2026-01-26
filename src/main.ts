@@ -7,11 +7,16 @@ import {
 } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/exception-filters/all-exceptions.filter';
+import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
+
+  app.useGlobalInterceptors(new ApiResponseInterceptor());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,4 +37,6 @@ async function bootstrap() {
   await app.listen(3000);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Error during bootstrap:', error);
+});

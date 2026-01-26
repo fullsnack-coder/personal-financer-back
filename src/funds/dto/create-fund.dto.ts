@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateFundDto {
   @IsString()
@@ -9,5 +9,12 @@ export class CreateFundDto {
 
   @IsNumber()
   categoryId: number;
-  // TODO: add field to store currency type and description
+
+  @IsString()
+  @IsOptional()
+  currencyCode?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }

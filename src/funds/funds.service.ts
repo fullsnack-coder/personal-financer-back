@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateFundDto } from './dto/create-fund.dto';
 import { UpdateFundDto } from './dto/update-fund.dto';
 import { Fund } from './entities/fund.entity';
 import { AccountsService } from '@/accounts/accounts.service';
+import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PaginatedResult } from '@/common/types/pagination';
 
 @Injectable()
 export class FundsService {
@@ -15,7 +17,13 @@ export class FundsService {
     private accountsService: AccountsService,
   ) {}
   async create(
-    { categoryId, initialBalance, name }: CreateFundDto,
+    {
+      categoryId,
+      initialBalance,
+      name,
+      currencyCode,
+      description,
+    }: CreateFundDto,
     userId: string,
   ) {
     const fundCategory = await this.categoriesService.findOne(categoryId);
@@ -35,15 +43,24 @@ export class FundsService {
       balance: initialBalance,
       category: fundCategory,
       user: fundUser,
+      currencyCode,
+      description,
     });
 
     await this.fundRepository.save(createdFund);
   }
 
-  findAll(userId: string) {
-    return this.fundRepository.find({
-      where: { user: { id: userId } },
+  async findAll(
+    userId: string,
+    { page = 1, size = 10 }: PaginationDto,
+  ): Promise<PaginatedResult<Array<Fund>>> {
+    const findConditions: FindOptionsWhere<Fund> = { user: { id: userId } };
+
+    const userFunds = await this.fundRepository.find({
+      where: findConditions,
       relations: { category: true, user: true },
+      skip: (page - 1) * size,
+      take: size,
       select: {
         category: {
           id: true,
@@ -55,6 +72,20 @@ export class FundsService {
         },
       },
     });
+
+    const totalFunds = await this.fundRepository.count({
+      where: findConditions,
+    });
+
+    return {
+      data: userFunds,
+      pagination: {
+        total: totalFunds,
+        page,
+        pageSize: size,
+        totalPages: Math.ceil(totalFunds / size),
+      },
+    };
   }
 
   findOne(id: string, userId: string) {

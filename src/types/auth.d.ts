@@ -1,4 +1,4 @@
-export type AuthPayload = {
+export type SessionPayload = {
   id: string;
   username: string;
 };

@@ -1,4 +1,3 @@
-import { Fund } from '../../funds/entities/fund.entity';
 import {
   Column,
   Entity,
@@ -6,9 +5,11 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
+import { Fund } from '../../funds/entities/fund.entity';
 
 @Entity()
-export class Transaction {
+export class Transaction extends TrackeableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -24,7 +25,7 @@ export class Transaction {
 
   @Column({ type: 'nvarchar', nullable: true })
   voucherImageUrl?: string;
-}
 
-// TODO: Add date of transaction field
-// TODO: Add description of transaction field
+  @Column({ type: 'nvarchar', nullable: true })
+  description?: string;
+}

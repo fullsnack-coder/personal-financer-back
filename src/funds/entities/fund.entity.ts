@@ -1,3 +1,4 @@
+import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
 import { User } from '../../accounts/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { Transaction } from '../../transactions/entities/transaction.entity';
@@ -11,7 +12,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Fund {
+export class Fund extends TrackeableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,6 +21,9 @@ export class Fund {
 
   @Column('decimal', { precision: 15, scale: 2 })
   balance: number;
+
+  @Column({ type: 'char', length: 3, nullable: false, default: 'USD' })
+  currencyCode: string;
 
   @Column({ type: 'nvarchar', nullable: true })
   description?: string;

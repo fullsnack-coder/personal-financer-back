@@ -3,9 +3,11 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FundsService } from 'src/funds/funds.service';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { promises } from 'node:fs';
+import { PaginationDto } from '@/common/dto/pagination.dto';
+import { PaginatedResult } from '@/common/types/pagination';
 
 @Injectable()
 export class TransactionsService {
@@ -45,11 +47,34 @@ export class TransactionsService {
     return createdTransaction;
   }
 
-  findAll(userId: string) {
-    return this.transactionRepository.find({
-      relations: ['fund', 'fund.user', 'fund.category'],
-      where: { fund: { user: { id: userId } } },
+  async findAll(
+    userId: string,
+    { page = 1, size = 10 }: PaginationDto,
+  ): Promise<PaginatedResult<Array<Transaction>>> {
+    const findConditions: FindOptionsWhere<Transaction> = {
+      fund: { user: { id: userId } },
+    };
+
+    const totalItems = await this.transactionRepository.count({
+      where: findConditions,
     });
+
+    const userTransactions = await this.transactionRepository.find({
+      relations: ['fund', 'fund.user', 'fund.category'],
+      skip: (page - 1) * size,
+      where: findConditions,
+      take: size,
+    });
+
+    return {
+      data: userTransactions,
+      pagination: {
+        total: totalItems,
+        page,
+        pageSize: size,
+        totalPages: Math.ceil(totalItems / size),
+      },
+    };
   }
 
   findOne(id: string) {

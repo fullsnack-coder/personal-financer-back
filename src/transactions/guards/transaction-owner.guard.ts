@@ -1,4 +1,4 @@
-import { AuthPayload } from '@/types/auth';
+import type { SessionPayload } from '@/types/auth';
 import {
   CanActivate,
   ExecutionContext,
@@ -17,7 +17,7 @@ export class TransactionOwnerGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const user = request.user as AuthPayload;
+    const user = request.user as SessionPayload;
     const transactionId = request.params.id;
 
     return this.isOwner(user.id, transactionId);
