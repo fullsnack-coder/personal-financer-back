@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from './common/config/app.config';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { join } from 'node:path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/static',
     }),
+    ConfigModule.forRoot(appConfig),
     TransactionsModule,
     FundsModule,
     CategoriesModule,

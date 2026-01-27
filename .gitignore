@@ -59,3 +59,8 @@ uploads/*
 
 # Docker
 db_data
+
+# ENV files
+.env.production
+.env.staging
+.env.development
