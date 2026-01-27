@@ -13,6 +13,10 @@ export class FundWithOptionalDescription1769357198780
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
+      `UPDATE \`fund\` SET \`description\` = '' WHERE \`description\` IS NULL`,
+    );
+
+    await queryRunner.query(
       `ALTER TABLE \`fund\` CHANGE \`description\` \`description\` varchar(255) NOT NULL`,
     );
   }

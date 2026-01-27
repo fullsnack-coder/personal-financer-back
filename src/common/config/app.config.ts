@@ -1,10 +1,16 @@
 import { ConfigModuleOptions } from '@nestjs/config';
 import Joi from 'joi';
 import { AppEnvironment } from '../types/app.config';
+import { loadEnv } from '../utils/env.loader';
+import { isDevelopment } from '../utils/environments';
 
 const configValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
-    .valid(AppEnvironment.Development, AppEnvironment.Production)
+    .valid(
+      AppEnvironment.Development,
+      AppEnvironment.Production,
+      AppEnvironment.Staging,
+    )
     .default(AppEnvironment.Development),
   PORT: Joi.number().default(3000),
   DATABASE_HOST: Joi.string().required(),
@@ -27,29 +33,15 @@ const serverConfig = () => ({
 
 const commonConfig: ConfigModuleOptions = {
   isGlobal: true,
-  envFilePath: '.env',
+  envFilePath: loadEnv(),
+  ignoreEnvFile: !isDevelopment(),
   validationSchema: configValidationSchema,
   load: [serverConfig],
 };
 
-const environmentsConfig: Record<AppEnvironment, ConfigModuleOptions> = {
-  [AppEnvironment.Development]: {
-    envFilePath: '.env.development',
-  },
-  [AppEnvironment.Staging]: {
-    envFilePath: '.env.staging',
-  },
-  [AppEnvironment.Production]: {
-    ignoreEnvFile: true,
-  },
-};
-
 const getAppConfig = (): ConfigModuleOptions => {
-  const nodeEnv = process.env.NODE_ENV || AppEnvironment.Development;
-
   return {
     ...commonConfig,
-    ...environmentsConfig[nodeEnv],
   };
 };
 

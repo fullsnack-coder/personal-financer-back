@@ -1,8 +1,9 @@
 import { Body, Controller, Post, Response } from '@nestjs/common';
+import type { Response as AuthResponse } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { LoginAccountDto } from './dto/login-account.dto';
-import type { Response as AuthResponse } from 'express';
+import { isProduction } from '@/common/utils/environments';
 
 @Controller('auth')
 export class AuthController {
@@ -22,8 +23,8 @@ export class AuthController {
 
     res.cookie('session_token', loginResult.sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      secure: isProduction(),
       expires: new Date(Date.now() + 3600000), // 1 hour
     });
 

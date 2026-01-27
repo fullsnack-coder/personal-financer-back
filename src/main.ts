@@ -5,11 +5,11 @@ import {
   RequestMethod,
   ValidationPipe,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/exception-filters/all-exceptions.filter';
 import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
-import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

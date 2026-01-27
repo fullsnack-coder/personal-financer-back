@@ -1,4 +1,7 @@
 import { DataSource } from 'typeorm';
-import { dbConfig } from './config';
+import { loadEnv } from '@/common/utils/env.loader';
+import { getDbConfig } from './config';
 
-export const AppDataSource = new DataSource(dbConfig);
+loadEnv();
+
+export const AppDataSource = new DataSource(getDbConfig());

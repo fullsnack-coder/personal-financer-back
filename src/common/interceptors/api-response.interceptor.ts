@@ -1,6 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   InternalServerErrorException,
   Logger,
   NestInterceptor,
@@ -31,6 +32,10 @@ export class ApiResponseInterceptor<T>
       }),
       catchError((error: Error) => {
         Logger.error('Error in ApiResponseInterceptor:', error);
+
+        if (error instanceof HttpException) {
+          return throwError(() => error);
+        }
 
         return throwError(
           () => new InternalServerErrorException('Internal server error'),

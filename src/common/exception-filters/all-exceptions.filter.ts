@@ -3,6 +3,7 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
@@ -13,6 +14,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const status = exception.getStatus?.() || 500;
+
+    Logger.error(`HTTP Status: ${status} Error Message: ${exception.message}`);
 
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();

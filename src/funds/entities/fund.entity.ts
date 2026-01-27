@@ -1,7 +1,3 @@
-import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
-import { User } from '../../accounts/entities/user.entity';
-import { Category } from '../../categories/entities/category.entity';
-import { Transaction } from '../../transactions/entities/transaction.entity';
 import {
   Column,
   Entity,
@@ -10,6 +6,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Category } from '@/categories/entities/category.entity';
+import { TrackeableEntity } from '@/database/entities/trackeable-entity.entity';
+import { Transaction } from '@/transactions/entities/transaction.entity';
+import { User } from '@/accounts/entities/user.entity';
 
 @Entity()
 export class Fund extends TrackeableEntity {
