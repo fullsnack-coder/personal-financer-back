@@ -18,7 +18,7 @@ export class TransactionsService {
   ) {}
 
   async create(
-    { amount, fundId, transactionFile }: CreateTransactionDto,
+    { amount, fundId, transactionFile, description }: CreateTransactionDto,
     userId: string,
   ) {
     const transactionFund = await this.fundsService.findOne(fundId, userId);
@@ -28,6 +28,7 @@ export class TransactionsService {
     const transactionPayload: Partial<Transaction> = {
       fund: transactionFund,
       amount,
+      description,
     };
 
     if (transactionFile) {
@@ -88,10 +89,10 @@ export class TransactionsService {
 
   async update(
     id: string,
-    { amount, fundId }: UpdateTransactionDto,
+    { amount, fundId, description }: UpdateTransactionDto,
     userId: string,
   ) {
-    const updatePayload: Partial<Transaction> = { amount };
+    const updatePayload: Partial<Transaction> = { amount, description };
 
     if (fundId) {
       const transactionFund = await this.fundsService.findOne(fundId, userId);
