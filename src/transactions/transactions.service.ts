@@ -33,11 +33,15 @@ export class TransactionsService {
 
     if (transactionFile) {
       const { mimetype } = transactionFile;
+
       const uploadPath = `uploads/transactions/${Date.now()}.${mimetype.split('/')[1]}`;
 
       await promises.writeFile(uploadPath, transactionFile.buffer);
 
-      transactionPayload.voucherImageUrl = uploadPath;
+      transactionPayload.voucherImageUrl = uploadPath.replace(
+        'uploads/',
+        '/static/',
+      );
     }
 
     const createdTransaction =
