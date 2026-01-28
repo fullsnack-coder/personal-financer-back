@@ -61,6 +61,7 @@ export class FundsService {
       relations: { category: true, user: true },
       skip: (page - 1) * size,
       take: size,
+      order: { createdAt: 'DESC' },
       select: {
         category: {
           id: true,

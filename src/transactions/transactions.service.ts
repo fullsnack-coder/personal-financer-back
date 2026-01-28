@@ -63,6 +63,7 @@ export class TransactionsService {
       relations: ['fund', 'fund.user', 'fund.category'],
       skip: (page - 1) * size,
       where: findConditions,
+      order: { createdAt: 'DESC' },
       take: size,
     });
 
@@ -81,6 +82,7 @@ export class TransactionsService {
     return this.transactionRepository.findOne({
       where: { id },
       relations: ['fund', 'fund.user', 'fund.category'],
+      order: { createdAt: 'DESC' },
     });
   }
 
