@@ -31,7 +31,7 @@ export class TransactionsController {
   @UseGuards(AuthGuard)
   create(
     @UploadedFile() transactionFile: Express.Multer.File,
-    @Body() createTransactionDto: Omit<CreateTransactionDto, 'transactionFile'>,
+    @Body() createTransactionDto: CreateTransactionDto,
     @CurrentSession() session: SessionPayload,
   ) {
     return this.transactionsService.create(

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Equal, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateFundDto } from './dto/create-fund.dto';
 import { UpdateFundDto } from './dto/update-fund.dto';
 import { Fund } from './entities/fund.entity';
@@ -91,7 +91,7 @@ export class FundsService {
 
   findOne(id: string, userId: string) {
     return this.fundRepository.findOne({
-      where: { id, user: { id: userId } },
+      where: { id: Equal(id), user: { id: Equal(userId) } },
       relations: { user: true, category: true },
       select: {
         user: {

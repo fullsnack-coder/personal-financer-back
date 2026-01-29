@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
 import { Fund } from '../../funds/entities/fund.entity';
+import { TransactionType } from './transaction-type.entity';
 
 @Entity()
 export class Transaction extends TrackeableEntity {
@@ -28,4 +29,10 @@ export class Transaction extends TrackeableEntity {
 
   @Column({ type: 'nvarchar', nullable: true })
   description?: string;
+
+  @Column({ type: 'nvarchar', length: 3, nullable: false, default: 'USD' })
+  currencyCode: string;
+
+  @ManyToOne(() => TransactionType, (type) => type.id, { nullable: false })
+  transactionType: TransactionType;
 }

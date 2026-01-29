@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './common/config/app.config';
+import { TransactionTypesModule } from './transaction-types/transaction-types.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { appConfig } from './common/config/app.config';
     UserProfileModule,
     AuthModule,
     AccountsModule,
+    TransactionTypesModule,
   ],
   controllers: [CommonController],
   providers: [],
