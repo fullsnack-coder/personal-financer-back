@@ -19,8 +19,9 @@ export class UserProfileService {
   ) {}
 
   async getProfile(userId: string) {
-    const userProfile = await this.userProfileRepository.findOneBy({
-      id: Equal(userId),
+    const userProfile = await this.userProfileRepository.findOne({
+      where: { user: Equal(userId) },
+      relations: ['user'],
     });
 
     return userProfile;
