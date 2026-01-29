@@ -1,8 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import {
   toHumanReadableBytes,
   toHumanReadableUptime,
-} from './common/utils/formatters';
+} from './utils/formatters';
+import { AuthGuard } from '@/auth/guards/auth.guard';
 
 @Controller()
 export class CommonController {
@@ -18,6 +19,14 @@ export class CommonController {
         arrayBuffers: toHumanReadableBytes(process.memoryUsage().arrayBuffers),
       },
       uptime: toHumanReadableUptime(process.uptime()),
+    };
+  }
+
+  @Get('available-currencies')
+  @UseGuards(AuthGuard)
+  getAvailableCurrencies() {
+    return {
+      currencies: ['USD', 'PEN'],
     };
   }
 }

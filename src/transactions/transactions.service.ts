@@ -26,12 +26,19 @@ export class TransactionsService {
       transactionFile,
       description,
       transactionTypeId,
+      currencyCode,
     }: CreateTransactionDto & { transactionFile?: Express.Multer.File },
     userId: string,
   ) {
     const transactionFund = await this.fundsService.findOne(fundId, userId);
 
     if (!transactionFund) throw new NotFoundException('Fund not found');
+
+    if (transactionFund.currencyCode !== currencyCode) {
+      throw new NotFoundException(
+        'Transaction currency code must match fund currency code',
+      );
+    }
 
     const transactionPayload: Partial<Transaction> = {
       fund: transactionFund,
