@@ -61,7 +61,7 @@ export class AuthService {
   }
 
   async login({ username, password }: LoginAccountDto) {
-    const user = await this.accountsService.findByUsername(username);
+    const user = await this.accountsService.findToComparePassword(username);
 
     if (!user) {
       throw new BadRequestException('Invalid username or password');

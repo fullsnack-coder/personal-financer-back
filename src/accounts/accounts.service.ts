@@ -13,6 +13,17 @@ export class AccountsService {
     return this.userRepository.findOneBy({ username: Equal(username) });
   }
 
+  findToComparePassword(username: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { username: Equal(username) },
+      select: {
+        passwordHash: true,
+        username: true,
+        id: true,
+      },
+    });
+  }
+
   findUserById(userId: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id: Equal(userId) },
