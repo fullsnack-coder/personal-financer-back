@@ -39,7 +39,14 @@ export class UserProfileService {
       updatePayload.avatarUrl = uploadPath.replace('uploads/', '/static/');
     }
 
-    await this.userProfileRepository.update({ id: userId }, updatePayload);
+    await this.userProfileRepository.update(
+      {
+        user: {
+          id: Equal(userId),
+        },
+      },
+      updatePayload,
+    );
 
     return { message: 'Profile updated successfully' };
   }
