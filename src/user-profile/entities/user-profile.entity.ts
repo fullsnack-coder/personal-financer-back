@@ -22,7 +22,7 @@ class UserProfile extends TrackeableEntity {
   @Column({ type: 'text', nullable: true })
   bio?: string;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   birthDate?: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

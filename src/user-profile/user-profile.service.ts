@@ -27,8 +27,15 @@ export class UserProfileService {
     return userProfile;
   }
 
-  async updateProfile({ userId, profileData, avatar }: UpdateProfileOptions) {
-    const updatePayload: Partial<UserProfile> = { ...profileData };
+  async updateProfile({
+    userId,
+    profileData: { birthDate, ...profileData },
+    avatar,
+  }: UpdateProfileOptions) {
+    const updatePayload: Partial<UserProfile> = {
+      ...profileData,
+      birthDate: new Date(birthDate?.toISOString() || ''),
+    };
 
     if (avatar) {
       const { mimetype } = avatar;
