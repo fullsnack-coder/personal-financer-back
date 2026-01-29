@@ -88,7 +88,7 @@ export class TransactionsService {
     });
 
     const userTransactions = await this.transactionRepository.find({
-      relations: ['fund', 'fund.category', 'transactionType'],
+      relations: ['fund', 'fund.user', 'fund.category', 'transactionType'],
       skip: (page - 1) * size,
       where: findConditions,
       order: { createdAt: 'DESC' },
@@ -109,7 +109,7 @@ export class TransactionsService {
   findOne(id: string) {
     return this.transactionRepository.findOne({
       where: { id: Equal(id) },
-      relations: ['fund', 'fund.category', 'transactionType'],
+      relations: ['fund', 'fund.user', 'fund.category', 'transactionType'],
       order: { createdAt: 'DESC' },
     });
   }
