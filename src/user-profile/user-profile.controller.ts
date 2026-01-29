@@ -25,6 +25,7 @@ export class UserProfileController {
   }
 
   @Put()
+  @UseGuards(AuthGuard)
   @UseInterceptors(
     FileInterceptor('avatar', {
       limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
