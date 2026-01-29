@@ -26,7 +26,14 @@ export class CommonController {
   @UseGuards(AuthGuard)
   getAvailableCurrencies() {
     return {
-      currencies: ['USD', 'PEN'],
+      currencies: [
+        {
+          code: 'USD',
+        },
+        {
+          code: 'PEN',
+        },
+      ],
     };
   }
 }
