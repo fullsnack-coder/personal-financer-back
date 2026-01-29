@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Put,
   UploadedFile,
   UseGuards,
@@ -13,17 +12,19 @@ import { UserProfileService } from './user-profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@/auth/guards/auth.guard';
+import { CurrentSession } from '@/auth/decorators/current-session.decorator';
+import type { SessionPayload } from '@/types/auth';
 
 @Controller('user-profile')
 export class UserProfileController {
   constructor(private userProfileService: UserProfileService) {}
-  @Get(':userId')
+  @Get()
   @UseGuards(AuthGuard)
-  getProfile(@Param('userId') userId: string) {
-    return this.userProfileService.getProfile(userId);
+  getProfile(@CurrentSession() { id }: SessionPayload) {
+    return this.userProfileService.getProfile(id);
   }
 
-  @Put(':userId')
+  @Put()
   @UseInterceptors(
     FileInterceptor('avatar', {
       limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
@@ -37,7 +38,7 @@ export class UserProfileController {
     }),
   )
   updateProfile(
-    @Param('userId') userId: string,
+    @CurrentSession() { id: userId }: SessionPayload,
     @Body() profileData: UpdateProfileDto,
     @UploadedFile() avatar?: Express.Multer.File,
   ) {

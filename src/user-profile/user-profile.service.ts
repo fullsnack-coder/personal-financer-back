@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { promises } from 'fs';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import UserProfile from './entities/user-profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
@@ -20,7 +20,7 @@ export class UserProfileService {
 
   async getProfile(userId: string) {
     const userProfile = await this.userProfileRepository.findOneBy({
-      id: userId,
+      id: Equal(userId),
     });
 
     return userProfile;

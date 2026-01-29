@@ -29,8 +29,6 @@ export class TransactionOwnerGuard implements CanActivate {
   ): Promise<boolean> {
     const transaction = await this.transactionsService.findOne(transactionId);
 
-    console.log(JSON.stringify({ userId, transaction }, null, 2));
-
     const transactionOwner = transaction?.fund?.user;
 
     if (!transactionOwner || transactionOwner.id !== userId) {
