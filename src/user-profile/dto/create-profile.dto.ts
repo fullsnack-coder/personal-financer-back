@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class CreateProfileDto {
   @IsString()
@@ -11,7 +12,8 @@ export class CreateProfileDto {
   @IsOptional()
   bio?: string;
 
-  @IsString()
+  @IsDate()
   @IsOptional()
+  @Type(() => Date)
   birthDate?: Date;
 }
