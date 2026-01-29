@@ -30,7 +30,7 @@ export class TransactionsService {
     }: CreateTransactionDto & { transactionFile?: Express.Multer.File },
     userId: string,
   ) {
-    const transactionFund = await this.fundsService.findOne(fundId, userId);
+    const transactionFund = await this.fundsService.findOne({ fundId, userId });
 
     if (!transactionFund) throw new NotFoundException('Fund not found');
 
@@ -88,7 +88,7 @@ export class TransactionsService {
     });
 
     const userTransactions = await this.transactionRepository.find({
-      relations: ['fund', 'fund.user', 'fund.category', 'transactionType'],
+      relations: ['fund', 'fund.category', 'transactionType'],
       skip: (page - 1) * size,
       where: findConditions,
       order: { createdAt: 'DESC' },
@@ -109,7 +109,7 @@ export class TransactionsService {
   findOne(id: string) {
     return this.transactionRepository.findOne({
       where: { id: Equal(id) },
-      relations: ['fund', 'fund.user', 'fund.category', 'transactionType'],
+      relations: ['fund', 'fund.category', 'transactionType'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -122,7 +122,11 @@ export class TransactionsService {
     const updatePayload: Partial<Transaction> = { amount, description };
 
     if (fundId) {
-      const transactionFund = await this.fundsService.findOne(fundId, userId);
+      const transactionFund = await this.fundsService.findOne({
+        fundId,
+        userId,
+      });
+
       if (!transactionFund) throw new NotFoundException('Fund not found');
 
       updatePayload.fund = transactionFund;

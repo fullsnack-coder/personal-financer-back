@@ -24,7 +24,7 @@ export class FundOwnerGuard implements CanActivate {
   }
 
   private async isOwner(userId: string, fundId: string): Promise<boolean> {
-    const fund = await this.fundsService.findOne(fundId, userId);
+    const fund = await this.fundsService.findOne({ fundId, userId });
 
     if (!fund) {
       throw new UnauthorizedException('You do not have access to this fund');

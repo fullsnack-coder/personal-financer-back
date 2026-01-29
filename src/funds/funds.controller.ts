@@ -46,7 +46,35 @@ export class FundsController {
   @Get(':id')
   @UseGuards(AuthGuard, FundOwnerGuard)
   findOne(@Param('id') id: string, @CurrentSession() session: SessionPayload) {
-    return this.fundsService.findOne(id, session.id);
+    return this.fundsService.findOne({
+      fundId: id,
+      userId: session.id,
+    });
+  }
+
+  @Get(':id/summary')
+  @UseGuards(AuthGuard, FundOwnerGuard)
+  fundSummary(
+    @Param('id') id: string,
+    @CurrentSession() session: SessionPayload,
+  ) {
+    return this.fundsService.fundSummary(session.id, id);
+  }
+
+  @Get(':id/transactions')
+  @UseGuards(AuthGuard, FundOwnerGuard)
+  getFundTransactions(
+    @Param('id') id: string,
+    @CurrentSession() session: SessionPayload,
+    @Query(new ValidationPipe({ transform: true }))
+    queryParams: PaginationDto,
+  ) {
+    const { page, size } = queryParams;
+
+    return this.fundsService.getFundTransactions(session.id, id, {
+      page,
+      size,
+    });
   }
 
   @Patch(':id')
