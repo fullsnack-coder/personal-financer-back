@@ -76,6 +76,7 @@ export class FundsService {
         category: {
           id: true,
           title: true,
+          coverImageUrl: true,
         },
         user: {
           id: true,
