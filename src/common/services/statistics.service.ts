@@ -12,8 +12,8 @@ export class StatisticsService {
     private transactionRepository: Repository<Transaction>,
   ) {}
 
-  async getExpensesIncome(options?: SearchStatisticDto) {
-    const { from, to, fundId } = options || {};
+  async getExpensesIncome(options: SearchStatisticDto) {
+    const { from, to, fundId, currency } = options || {};
 
     const { total: expensesTotal = '0' } =
       (await this.transactionRepository
@@ -35,6 +35,9 @@ export class StatisticsService {
           { from, to },
         )
         .andWhere(fundId ? 'transaction.fundId = :fundId' : '1=1', { fundId })
+        .andWhere(currency ? 'transaction.currencyCode = :currency' : '1=1', {
+          currency,
+        })
         .getRawOne<{ total: string }>()) || {};
 
     const { total: incomeTotal = '0' } =
@@ -57,11 +60,15 @@ export class StatisticsService {
           { from, to },
         )
         .andWhere(fundId ? 'transaction.fundId = :fundId' : '1=1', { fundId })
+        .andWhere(currency ? 'transaction.currencyCode = :currency' : '1=1', {
+          currency,
+        })
         .getRawOne<{ total: string }>()) || {};
 
     return {
       expenses: parseFloat(expensesTotal) || 0,
       incomes: parseFloat(incomeTotal) || 0,
+      currency,
     };
   }
 }

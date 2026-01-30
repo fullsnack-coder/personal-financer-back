@@ -1,7 +1,16 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsUUID } from 'class-validator';
+import {
+  IsISO4217CurrencyCode,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class SearchStatisticDto {
+  @IsString()
+  @IsISO4217CurrencyCode()
+  currency: string;
+
   @IsOptional()
   @IsUUID()
   fundId?: string;
