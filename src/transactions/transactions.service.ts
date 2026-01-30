@@ -44,6 +44,7 @@ export class TransactionsService {
       fund: transactionFund,
       amount,
       description,
+      currencyCode,
     };
 
     const transactionType =
