@@ -1,12 +1,16 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
   toHumanReadableBytes,
   toHumanReadableUptime,
 } from './utils/formatters';
 import { AuthGuard } from '@/auth/guards/auth.guard';
+import { StatisticsService } from './services/statistics.service';
+import { SearchStatisticDto } from './dto/search-statistic.dto';
 
 @Controller()
 export class CommonController {
+  constructor(private statisticsService: StatisticsService) {}
+
   @Get('health')
   healthCheck() {
     return {
@@ -34,6 +38,17 @@ export class CommonController {
           code: 'PEN',
         },
       ],
+    };
+  }
+
+  @Get('statistics')
+  @UseGuards(AuthGuard)
+  async getStatistics(@Query() searchStatisticsDto: SearchStatisticDto) {
+    const expensesIncome =
+      await this.statisticsService.getExpensesIncome(searchStatisticsDto);
+
+    return {
+      expensesIncome,
     };
   }
 }
