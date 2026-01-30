@@ -117,7 +117,13 @@ export class TransactionsService {
 
   async update(
     id: string,
-    { amount, fundId, description, transactionTypeId }: UpdateTransactionDto,
+    {
+      amount,
+      fundId,
+      description,
+      transactionTypeId,
+      currencyCode,
+    }: UpdateTransactionDto,
     userId: string,
   ) {
     const updatePayload: Partial<Transaction> = { amount, description };
@@ -130,7 +136,14 @@ export class TransactionsService {
 
       if (!transactionFund) throw new NotFoundException('Fund not found');
 
+      if (currencyCode && transactionFund.currencyCode !== currencyCode) {
+        throw new NotFoundException(
+          'Transaction currency code must match fund currency code',
+        );
+      }
+
       updatePayload.fund = transactionFund;
+      updatePayload.currencyCode = currencyCode;
     }
 
     if (transactionTypeId) {
