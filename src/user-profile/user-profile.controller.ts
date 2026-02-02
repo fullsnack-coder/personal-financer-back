@@ -20,7 +20,6 @@ export class UserProfileController {
     @CurrentSession() { id: userId }: SessionPayload,
     @Body() profileData: UpdateProfileDto,
   ) {
-    console.log({ profileData });
     return this.userProfileService.updateProfile({
       userId,
       profileData,
