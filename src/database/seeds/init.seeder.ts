@@ -9,11 +9,15 @@ import FundSeeder from './fund.seeder';
 import UserSeeder from './user.seeder';
 import TransactionSeeder from './transaction.seeder';
 import TransactionTypeSeeder from './transaction-type.seeder';
+import AvatarGroupSeeder from './avatar-group.seeder';
+import ProfileAvatarSeeder from './profile-avatar.seeder';
 
 export default class InitSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     await runSeeders(dataSource, {
       seeds: [
+        AvatarGroupSeeder,
+        ProfileAvatarSeeder,
         UserSeeder,
         CategorySeeder,
         FundSeeder,

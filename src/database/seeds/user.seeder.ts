@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import UserProfile from '../../user-profile/entities/user-profile.entity';
 import { User } from '../../accounts/entities/user.entity';
+import { ProfileAvatar } from '@/user-profile/entities/profile-avatar.entity';
 
 export default class UserSeeder implements Seeder {
   public async run(
@@ -10,6 +11,9 @@ export default class UserSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ): Promise<void> {
     const userRepository = dataSource.getRepository(User);
+    const profileAvatarRepository = dataSource.getRepository(ProfileAvatar);
+
+    const [profileAvatar] = await profileAvatarRepository.find();
 
     await userRepository
       .create({
@@ -25,6 +29,7 @@ export default class UserSeeder implements Seeder {
 
     await profileFactory.saveMany(1, {
       user: firstUser,
+      profileAvatar,
     });
   }
 }

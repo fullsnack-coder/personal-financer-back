@@ -4,9 +4,11 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ProfileAvatar } from './profile-avatar.entity';
 
 @Entity()
 class UserProfile extends TrackeableEntity {
@@ -34,6 +36,13 @@ class UserProfile extends TrackeableEntity {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => ProfileAvatar, (avatar) => avatar.userProfiles, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'profileAvatarId' })
+  profileAvatar?: ProfileAvatar;
 }
 
 export default UserProfile;

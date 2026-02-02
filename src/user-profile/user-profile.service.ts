@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { promises } from 'fs';
 import { Equal, Repository } from 'typeorm';
 import UserProfile from './entities/user-profile.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfileAvatar } from './entities/profile-avatar.entity';
 
 interface UpdateProfileOptions {
   profileData: UpdateProfileDto;
   userId: string;
-  avatar?: Express.Multer.File;
 }
 
 @Injectable()
@@ -16,12 +15,14 @@ export class UserProfileService {
   constructor(
     @InjectRepository(UserProfile)
     private readonly userProfileRepository: Repository<UserProfile>,
+    @InjectRepository(ProfileAvatar)
+    private readonly profileAvatarRepository: Repository<ProfileAvatar>,
   ) {}
 
   async getProfile(userId: string) {
     const userProfile = await this.userProfileRepository.findOne({
       where: { user: Equal(userId) },
-      relations: ['user'],
+      relations: ['user', 'profileAvatar', 'profileAvatar.group'],
     });
 
     return userProfile;
@@ -29,21 +30,21 @@ export class UserProfileService {
 
   async updateProfile({
     userId,
-    profileData: { birthDate, ...profileData },
-    avatar,
+    profileData: { birthDate, avatarId, ...profileData },
   }: UpdateProfileOptions) {
     const updatePayload: Partial<UserProfile> = {
       ...profileData,
       birthDate: new Date(birthDate?.toISOString() || ''),
     };
 
-    if (avatar) {
-      const { mimetype } = avatar;
-      const uploadPath = `uploads/avatars/${Date.now()}.${mimetype.split('/')[1]}`;
+    if (avatarId) {
+      const avatar = await this.profileAvatarRepository.findOne({
+        where: { id: Equal(avatarId) },
+      });
 
-      await promises.writeFile(uploadPath, avatar.buffer);
-
-      updatePayload.avatarUrl = uploadPath.replace('uploads/', '/static/');
+      if (avatar) {
+        updatePayload.profileAvatar = avatar;
+      }
     }
 
     await this.userProfileRepository.update(
@@ -56,5 +57,12 @@ export class UserProfileService {
     );
 
     return { message: 'Profile updated successfully' };
+  }
+
+  async getProfileAvatars() {
+    const avatars = await this.profileAvatarRepository.find({
+      relations: ['group'],
+    });
+    return avatars;
   }
 }

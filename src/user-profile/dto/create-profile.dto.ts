@@ -16,4 +16,8 @@ export class CreateProfileDto {
   @IsOptional()
   @Type(() => Date)
   birthDate?: Date;
+
+  @IsOptional()
+  @Type(() => Number)
+  avatarId?: number;
 }
