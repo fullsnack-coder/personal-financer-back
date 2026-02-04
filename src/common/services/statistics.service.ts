@@ -12,7 +12,7 @@ export class StatisticsService {
     private transactionRepository: Repository<Transaction>,
   ) {}
 
-  async getExpensesIncome(options: SearchStatisticDto) {
+  async getExpensesIncome(options: SearchStatisticDto, userId: string) {
     const { from, to, fundId, currency } = options || {};
 
     const { total: expensesTotal = '0' } =
@@ -38,6 +38,8 @@ export class StatisticsService {
         .andWhere(currency ? 'transaction.currencyCode = :currency' : '1=1', {
           currency,
         })
+        .innerJoin('transaction.fund', 'fund')
+        .andWhere('fund.user_id = :userId', { userId })
         .getRawOne<{ total: string }>()) || {};
 
     const { total: incomeTotal = '0' } =
@@ -63,6 +65,8 @@ export class StatisticsService {
         .andWhere(currency ? 'transaction.currencyCode = :currency' : '1=1', {
           currency,
         })
+        .innerJoin('transaction.fund', 'fund')
+        .andWhere('fund.user_id = :userId', { userId })
         .getRawOne<{ total: string }>()) || {};
 
     return {

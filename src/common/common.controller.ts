@@ -6,6 +6,8 @@ import {
 import { AuthGuard } from '@/auth/guards/auth.guard';
 import { StatisticsService } from './services/statistics.service';
 import { SearchStatisticDto } from './dto/search-statistic.dto';
+import { CurrentSession } from '@/auth/decorators/current-session.decorator';
+import type { SessionPayload } from '@/types/auth';
 
 @Controller()
 export class CommonController {
@@ -43,9 +45,14 @@ export class CommonController {
 
   @Get('statistics')
   @UseGuards(AuthGuard)
-  async getStatistics(@Query() searchStatisticsDto: SearchStatisticDto) {
-    const expensesIncome =
-      await this.statisticsService.getExpensesIncome(searchStatisticsDto);
+  async getStatistics(
+    @Query() searchStatisticsDto: SearchStatisticDto,
+    @CurrentSession() { id: userId }: SessionPayload,
+  ) {
+    const expensesIncome = await this.statisticsService.getExpensesIncome(
+      searchStatisticsDto,
+      userId,
+    );
 
     return {
       expensesIncome,
