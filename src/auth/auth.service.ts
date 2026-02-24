@@ -80,4 +80,8 @@ export class AuthService {
 
     return { sessionToken: token };
   }
+
+  async registerDeviceToken(userId: string, deviceToken: string) {
+    return this.accountsService.registerDeviceToken(userId, deviceToken);
+  }
 }

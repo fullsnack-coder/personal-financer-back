@@ -8,28 +8,45 @@ import { AuthModule } from './auth/auth.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { appConfig } from './common/config/app.config';
 import { TransactionTypesModule } from './transaction-types/transaction-types.module';
 import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mariadb',
-      host: '192.168.1.35',
-      port: 3306,
-      username: 'root',
-      password: 'example',
-      database: 'personal_financer',
-      synchronize: false,
-      autoLoadEntities: true,
+    ConfigModule.forRoot(appConfig),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mariadb',
+        host: configService.get('DATABASE_HOST'),
+        port: parseInt(configService.get('DATABASE_PORT') || '3306', 10),
+        username: configService.get('DATABASE_USER'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        synchronize: false,
+        autoLoadEntities: true,
+      }),
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mariadb',
+        host: configService.get('TOKENS_DATABASE_HOST'),
+        port: parseInt(configService.get('TOKENS_DATABASE_PORT') || '3306', 10),
+        username: configService.get('TOKENS_DATABASE_USER'),
+        password: configService.get('TOKENS_DATABASE_PASSWORD'),
+        database: configService.get('TOKENS_DATABASE_NAME'),
+        synchronize: false,
+        autoLoadEntities: true,
+      }),
+      name: 'user_devices',
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/static',
     }),
-    ConfigModule.forRoot(appConfig),
     TransactionsModule,
     FundsModule,
     CategoriesModule,

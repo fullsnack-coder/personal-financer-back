@@ -6,12 +6,18 @@ import { UserProfileController } from './user-profile.controller';
 import { UserProfileService } from './user-profile.service';
 import { ProfileAvatar } from './entities/profile-avatar.entity';
 import { AvatarGroup } from './entities/avatar-group.entity';
+import ProfilePreferences from './entities/profile-preferences.entity';
 
 @Module({
   controllers: [UserProfileController],
   providers: [UserProfileService],
   imports: [
-    TypeOrmModule.forFeature([UserProfile, ProfileAvatar, AvatarGroup]),
+    TypeOrmModule.forFeature([
+      UserProfile,
+      ProfileAvatar,
+      AvatarGroup,
+      ProfilePreferences,
+    ]),
     AccountsModule,
   ],
   exports: [UserProfileService],

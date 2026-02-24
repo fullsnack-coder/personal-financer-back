@@ -28,6 +28,7 @@
     "seed:run:staging": "cross-env NODE_ENV=staging ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d ./dist/database/data-source.js"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.996.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",

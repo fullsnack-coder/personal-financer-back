@@ -8,6 +8,7 @@ import {
 import { TrackeableEntity } from '../../database/entities/trackeable-entity.entity';
 import UserProfile from '../../user-profile/entities/user-profile.entity';
 import { Fund } from '../../funds/entities/fund.entity';
+import ProfilePreferences from '@/user-profile/entities/profile-preferences.entity';
 
 @Entity()
 export class User extends TrackeableEntity {
@@ -31,4 +32,7 @@ export class User extends TrackeableEntity {
 
   @OneToMany(() => Fund, (fund) => fund.user)
   funds: Array<Fund>;
+
+  @OneToMany(() => ProfilePreferences, (preference) => preference.user)
+  profilePreferences?: Array<ProfilePreferences>;
 }

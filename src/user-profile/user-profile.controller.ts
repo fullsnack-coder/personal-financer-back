@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { UserProfileService } from './user-profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthGuard } from '@/auth/guards/auth.guard';
 import { CurrentSession } from '@/auth/decorators/current-session.decorator';
 import type { SessionPayload } from '@/types/auth';
+import { ProfilePreferenceKey } from './utils/profile-preference.enum';
+import UpdateNotificationsPreferenceDTO from './dto/update-notifications-preference.dto';
 
 @Controller('user-profile')
 export class UserProfileController {
@@ -30,5 +32,24 @@ export class UserProfileController {
   @UseGuards(AuthGuard)
   getProfileAvatars() {
     return this.userProfileService.getProfileAvatars();
+  }
+
+  @Post('notifications-preference')
+  @UseGuards(AuthGuard)
+  updateNotificationsPreference(
+    @CurrentSession() { id: userId }: SessionPayload,
+    @Body() { enableNotifications }: UpdateNotificationsPreferenceDTO,
+  ) {
+    return this.userProfileService.updateProfilePreference(
+      userId,
+      ProfilePreferenceKey.NOTIFICATIONS,
+      enableNotifications,
+    );
+  }
+
+  @Get('preferences')
+  @UseGuards(AuthGuard)
+  getProfilePreferences(@CurrentSession() { id: userId }: SessionPayload) {
+    return this.userProfileService.getProfilePreferences(userId);
   }
 }

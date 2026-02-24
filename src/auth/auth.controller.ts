@@ -1,13 +1,26 @@
-import { Body, Controller, Post, Response } from '@nestjs/common';
+import { Body, Controller, Post, Response, UseGuards } from '@nestjs/common';
 import type { Response as AuthResponse } from 'express';
+import { isProduction } from '@/common/utils/environments';
+import type { SessionPayload } from '@/types/auth';
+import { AuthGuard } from './guards/auth.guard';
 import { AuthService } from './auth.service';
+import { CurrentSession } from './decorators/current-session.decorator';
 import { RegisterAccountDto } from './dto/register-account.dto';
 import { LoginAccountDto } from './dto/login-account.dto';
-import { isProduction } from '@/common/utils/environments';
+import RegisterDeviceDTO from './dto/register-device.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('device')
+  @UseGuards(AuthGuard)
+  registerDeviceToken(
+    @CurrentSession() { id: userId }: SessionPayload,
+    @Body() { deviceToken }: RegisterDeviceDTO,
+  ) {
+    return this.authService.registerDeviceToken(userId, deviceToken);
+  }
 
   @Post('register')
   register(@Body() registerAccountDto: RegisterAccountDto) {
